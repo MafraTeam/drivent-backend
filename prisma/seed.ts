@@ -17,8 +17,6 @@ async function main() {
   }
 
   let hotels = await prisma.hotel.findMany();
-  if(!hotels) {
-    let hotels = await prisma.hotel.findMany();
   if (!hotels) {
     const drivenResort = await prisma.hotel.create({
       data: {
@@ -101,7 +99,7 @@ async function main() {
       },
     });
   }
-  }
+
 
   console.log({ event, hotels });
 }
