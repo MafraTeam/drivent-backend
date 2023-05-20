@@ -5,7 +5,7 @@ async function findHotels() {
 }
 
 async function findRoomsByHotelId(hotelId: number) {
-  return prisma.hotel.findFirst({
+  const hotel = await prisma.hotel.findFirst({
     where: {
       id: hotelId,
     },
@@ -13,6 +13,28 @@ async function findRoomsByHotelId(hotelId: number) {
       Rooms: true,
     },
   });
+
+  const roomsWithTakenPlaces = await Promise.all(
+    hotel.Rooms.map(async (room) => {
+      const takenPlaces = await prisma.booking.count({
+        where: {
+          roomId: room.id,
+        },
+      });
+
+      return {
+        ...room,
+        takenPlaces,
+      };
+    }),
+  );
+
+  const hotelWithRoomsAndTakenPlaces = {
+    ...hotel,
+    Rooms: roomsWithTakenPlaces,
+  };
+
+  return hotelWithRoomsAndTakenPlaces;
 }
 
 const hotelRepository = {
