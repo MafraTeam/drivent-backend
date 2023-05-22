@@ -56,12 +56,22 @@ async function changeBookingRoomById(userId: number, roomId: number) {
   });
 }
 
+async function getBookingsByHotelId(hotelId: number) {
+  const bookings = await roomRepository.findAllByHotelId(hotelId);
+
+  if (!bookings) {
+    throw notFoundError();
+  }
+  return bookings;
+}
+
 const bookingService = {
   bookingRoomById,
   getBooking,
   changeBookingRoomById,
   checkEnrollmentTicket,
   checkValidBooking,
+  getBookingsByHotelId,
 };
 
 export default bookingService;

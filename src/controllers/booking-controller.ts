@@ -48,3 +48,15 @@ export async function changeBooking(req: AuthenticatedRequest, res: Response, ne
     next(error);
   }
 }
+
+export async function getBookingsByHotelId(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  const { hotelId } = req.params;
+
+  try {
+    const bookings = await bookingService.getBookingsByHotelId(Number(hotelId));
+
+    return res.status(httpStatus.OK).send(bookings);
+  } catch (error) {
+    next(error);
+  }
+}
