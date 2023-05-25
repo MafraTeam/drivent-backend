@@ -1,5 +1,5 @@
-import { PrismaClient } from "@prisma/client";
-import dayjs from "dayjs";
+import { PrismaClient } from '@prisma/client';
+import dayjs from 'dayjs';
 const prisma = new PrismaClient();
 
 async function main() {
@@ -7,11 +7,11 @@ async function main() {
   if (!event) {
     event = await prisma.event.create({
       data: {
-        title: "Driven.t",
-        logoImageUrl: "https://files.driveneducation.com.br/images/logo-rounded.png",
-        backgroundImageUrl: "linear-gradient(to right, #FA4098, #FFD77F)",
+        title: 'Driven.t',
+        logoImageUrl: 'https://files.driveneducation.com.br/images/logo-rounded.png',
+        backgroundImageUrl: 'linear-gradient(to right, #FA4098, #FFD77F)',
         startsAt: dayjs().toDate(),
-        endsAt: dayjs().add(21, "days").toDate(),
+        endsAt: dayjs().add(21, 'days').toDate(),
       },
     });
   }
@@ -44,11 +44,12 @@ async function main() {
         },
       },
     });
-  
+
     const drivenPalace = await prisma.hotel.create({
       data: {
         name: 'Driven Palace',
-        image: 'https://img.freepik.com/fotos-gratis/tipo-complexo-de-entretenimento-o-popular-resort-com-piscinas-e-parques-aquaticos-na-turquia-hotel-de-luxo-recorrer_146671-18827.jpg',
+        image:
+          'https://img.freepik.com/fotos-gratis/tipo-complexo-de-entretenimento-o-popular-resort-com-piscinas-e-parques-aquaticos-na-turquia-hotel-de-luxo-recorrer_146671-18827.jpg',
         Rooms: {
           create: [
             { name: 'Room 200', capacity: 3 },
@@ -71,7 +72,7 @@ async function main() {
         },
       },
     });
-  
+
     const drivenWorld = await prisma.hotel.create({
       data: {
         name: 'Driven World',
@@ -102,7 +103,7 @@ async function main() {
   hotels = await prisma.hotel.findFirst();
 
   let ticketTypes = await prisma.ticketType.findFirst();
-  if(!ticketTypes) {
+  if (!ticketTypes) {
     const presencialComHotel = await prisma.ticketType.create({
       data: {
         name: 'Presencial com Hotel',
@@ -131,6 +132,63 @@ async function main() {
     });
   }
   ticketTypes = await prisma.ticketType.findFirst();
+
+  const activities = await prisma.activity.findFirst();
+
+  if (!activities) {
+    await prisma.activity.createMany({
+      data: [
+        {
+          startDate: new Date(2023, 6, 1, 9, 0, 0),
+          finishDate: new Date(2023, 6, 1, 10, 0, 0),
+          eventName: 'Programação com Portugol',
+          image: 'https://i.ytimg.com/vi/w42ZlTYoQuc/maxresdefault.jpg',
+          localName: 'Auditório do Centro Cultural',
+          vacancies: 10,
+        },
+        {
+          startDate: new Date(2023, 6, 1, 9, 30, 0),
+          finishDate: new Date(2023, 6, 1, 12, 0, 0),
+          eventName: 'Introdução a Programação',
+          image: 'https://correiopaulista.com/wp-content/uploads/2019/08/cubo-magico-1024x576.jpg',
+          localName: 'Auditório do Centro Cultural',
+          vacancies: 20,
+        },
+        {
+          startDate: new Date(2023, 6, 2, 12, 0, 0),
+          finishDate: new Date(2023, 6, 2, 14, 30, 0),
+          eventName: 'Introdução a Cálculo 1',
+          image: 'https://cdn.fs.teachablecdn.com/HrLbVCOAQ9iD91LsGRcW',
+          localName: 'Engenharias ABBA',
+          vacancies: 10,
+        },
+        {
+          startDate: new Date(2023, 6, 3, 11, 0, 0),
+          finishDate: new Date(2023, 6, 3, 12, 30, 0),
+          eventName: 'Introdução ao Marketing Digital',
+          image: 'https://futurereport.schibsted.com/wp-content/uploads/2016/10/DIGITAL-MARKETING.jpg',
+          localName: 'Rei do Marketing',
+          vacancies: 10,
+        },
+        {
+          startDate: new Date(2023, 6, 2, 12, 0, 0),
+          finishDate: new Date(2023, 6, 2, 15, 0, 0),
+          eventName: 'Evento Teste 1',
+          image: 'https://i.ytimg.com/vi/2CVQfApdhIc/maxresdefault.jpg',
+          localName: 'Local Teste',
+          vacancies: 1,
+        },
+        {
+          startDate: new Date(2023, 6, 4, 14, 0, 0),
+          finishDate: new Date(2023, 6, 4, 15, 0, 0),
+          eventName: 'Evento Teste 2',
+          image: 'https://i.ytimg.com/vi/2CVQfApdhIc/maxresdefault.jpg',
+          localName: 'Local Teste',
+          vacancies: 1,
+        },
+      ],
+    });
+  }
 
   console.log({ event, hotels, ticketTypes });
 }
