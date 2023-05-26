@@ -1,29 +1,41 @@
 import { notFoundError } from '@/errors';
+import { cannotListActivitiesError } from '@/errors/cannot-list-activities-error';
 import activitiesRepository from '@/repositories/activities-repository';
+import enrollmentRepository from '@/repositories/enrollment-repository';
+import ticketsRepository from '@/repositories/tickets-repository';
 
 async function checkEnrollmentTicket(userId: number) {
-  //verificar pagamento, enrollment, verificar se a modalidade é online
+  const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
+  if (!enrollment) throw notFoundError();
+
+  const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
+  if (!ticket || ticket.status === 'RESERVED' || ticket.TicketType.isRemote) {
+    throw cannotListActivitiesError();
+  }
 }
 
 async function getActivities(userId: number) {
-  const activities = await activitiesRepository.findDaysWithActivities();
+  await checkEnrollmentTicket(userId);
 
+  const activities = await activitiesRepository.findDaysWithActivities();
   if (!activities) throw notFoundError();
 
   return activities;
 }
 
 async function getActivitiesByDay(userId: number, day: string) {
-  const activities = await activitiesRepository.findActivitiesByDay(day);
+  await checkEnrollmentTicket(userId);
 
+  const activities = await activitiesRepository.findActivitiesByDay(userId, day);
   if (!activities) throw notFoundError();
 
   return activities;
 }
 
 async function registerEnrollActivity(userId: number, activityId: number) {
-  const register = await activitiesRepository.create(userId, activityId);
+  await checkEnrollmentTicket(userId);
 
+  const register = await activitiesRepository.create(userId, activityId);
   if (!register) throw notFoundError();
 
   return register;
