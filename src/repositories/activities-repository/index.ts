@@ -65,9 +65,16 @@ async function findActivitiesByDay(userId: number, day: string) {
       },
     });
 
+    const subscribed = await prisma.activityRecords.findMany({
+      where: {
+        activityId: activity.id,
+      },
+    });
+
     const ActivityWithSubscription = {
       ...activity,
       isSubscribed: Boolean(isSubscribed),
+      subscribed: subscribed.length,
     };
 
     activitiesWithSubscription.push(ActivityWithSubscription);
