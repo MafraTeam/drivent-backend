@@ -5,15 +5,7 @@ async function findDaysWithActivities() {
   const activities = await prisma.activity.findMany();
 
   function getDiaSemana(data: Date): string {
-    const diasSemana = [
-      'Domingo',
-      'Segunda-feira',
-      'Terça-feira',
-      'Quarta-feira',
-      'Quinta-feira',
-      'Sexta-feira',
-      'Sábado',
-    ];
+    const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
     const dia = data.getDay();
     return diasSemana[dia];
   }
