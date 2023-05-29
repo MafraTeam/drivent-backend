@@ -1,11 +1,14 @@
+import { RedisClientType } from '@redis/client';
 import { createClient } from 'redis';
 
-const redis = createClient();
+export let redis: RedisClientType;
 
-redis.on('error', (error) => console.log('Redis database connection error: ', error));
+export async function connectRedis(): Promise<void> {
+  redis = createClient();
+  redis.on('error', (error) => console.log('Redis database connection error: ', error));
+  await redis.connect();
+}
 
-const redisConnect = async () => await redis.connect();
-
-redisConnect();
-
-export { redis };
+export async function disconnectRedis() {
+  await redis.disconnect();
+}
