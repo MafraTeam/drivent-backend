@@ -1,11 +1,15 @@
 import { Booking } from '@prisma/client';
-import { prisma } from '@/config';
+import { prisma, redis } from '@/config';
+
+const key = 'booking';
 
 type CreateParams = Omit<Booking, 'id' | 'createdAt' | 'updatedAt'>;
 type UpdateParams = Omit<Booking, 'createdAt' | 'updatedAt'>;
 
 async function create({ roomId, userId }: CreateParams): Promise<Booking> {
-  return prisma.booking.create({
+  await redis.del(key);
+
+  return await prisma.booking.create({
     data: {
       roomId,
       userId,
@@ -14,18 +18,27 @@ async function create({ roomId, userId }: CreateParams): Promise<Booking> {
 }
 
 async function findByRoomId(roomId: number) {
-  return prisma.booking.findMany({
-    where: {
-      roomId,
-    },
+  const booking: Booking[] = JSON.parse(await redis.get(key));
+
+  if (booking) return booking.filter((b) => b.roomId === roomId);
+
+  const psBooking = await prisma.booking.findMany({
     include: {
       Room: true,
     },
   });
+
+  await redis.set(key, JSON.stringify(psBooking));
+
+  return psBooking.filter((b) => b.roomId === roomId);
 }
 
 async function findByUserId(userId: number) {
-  return prisma.booking.findFirst({
+  const booking = JSON.parse(await redis.get(`${key}-user-${userId}`));
+
+  if (booking) return booking;
+
+  const psBooking = await prisma.booking.findFirst({
     where: {
       userId,
     },
@@ -33,10 +46,16 @@ async function findByUserId(userId: number) {
       Room: true,
     },
   });
+
+  await redis.set(`${key}-user-${userId}`, JSON.stringify(psBooking));
+
+  return psBooking;
 }
 
 async function upsertBooking({ id, roomId, userId }: UpdateParams) {
-  return prisma.booking.upsert({
+  await redis.del(key);
+
+  return await prisma.booking.upsert({
     where: {
       id,
     },
