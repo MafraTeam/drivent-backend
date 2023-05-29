@@ -8,7 +8,21 @@ async function findAllByHotelId(hotelId: number) {
 
   if (rooms) return rooms.filter((r) => r.hotelId === hotelId);
 
-  const psRooms = await prisma.room.findMany();
+  const psRooms = await prisma.room.findMany({
+    orderBy: [
+      {
+        id: 'asc',
+      },
+    ],
+    include: {
+      Booking: true,
+      _count: {
+        select: {
+          Booking: true,
+        },
+      },
+    },
+  });
 
   await redis.set(key, JSON.stringify(psRooms));
 
